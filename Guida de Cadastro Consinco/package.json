@@ -1,0 +1,13 @@
+{
+  "name": "guia-consinco",
+  "version": "1.0.0",
+  "description": "Sistema de guias para o ERP Consinco",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "start:php": "php -S localhost:8000"
+  },
+  "keywords": ["erp", "consinco", "guia", "tutorial"],
+  "author": "Fribal",
+  "license": "MIT"
+}

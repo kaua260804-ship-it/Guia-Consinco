@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Guia Consinco</title>
+    <link rel="stylesheet" href="assets/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h1>Guia Consinco</h1>
+            <h2>Sistema de Guias ERP</h2>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn-login">Entrar</button>
+                
+                <div id="login-error" class="error-message"></div>
+            </form>
+            
+            <div class="login-info">
+                <p><strong>Usuários de teste:</strong></p>
+                <p>Visualizador: user / 123456</p>
+                <p>Administrador: admin / admin123</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="assets/js/auth.js"></script>
+</body>
+</html>
