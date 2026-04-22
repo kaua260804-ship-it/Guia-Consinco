@@ -233,4 +233,334 @@ class Database {
                     anotacoes.sort((a, b) => {
                         const dateA = new Date(a.dataCriacao || 0);
                         const dateB = new Date(b.dataCriacao || 0);
-                        return
+                        return dateB - dateA;
+                    });
+                    resolve(anotacoes);
+                };
+                
+                request.onerror = () => reject(request.error);
+                
+            } catch (error) {
+                console.error('Erro ao buscar todas anotações:', error);
+                reject(error);
+            }
+        });
+    }
+    
+    // Configurações
+    async setConfig(chave, valor) {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            try {
+                const transaction = this.db.transaction(['configuracoes'], 'readwrite');
+                const store = transaction.objectStore('configuracoes');
+                
+                const request = store.put({ chave, valor });
+                
+                request.onsuccess = () => resolve(true);
+                request.onerror = () => reject(request.error);
+                
+            } catch (error) {
+                console.error('Erro ao salvar configuração:', error);
+                reject(error);
+            }
+        });
+    }
+    
+    async getConfig(chave) {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            try {
+                const transaction = this.db.transaction(['configuracoes'], 'readonly');
+                const store = transaction.objectStore('configuracoes');
+                
+                const request = store.get(chave);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+                
+            } catch (error) {
+                console.error('Erro ao buscar configuração:', error);
+                reject(error);
+            }
+        });
+    }
+    
+    // Favoritos
+    async adicionarFavorito(anotacaoId) {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['favoritos'], 'readwrite');
+            const store = transaction.objectStore('favoritos');
+            
+            const favorito = {
+                id: `fav_${anotacaoId}`,
+                anotacaoId: Number(anotacaoId),
+                dataAdicionado: new Date().toISOString()
+            };
+            
+            const request = store.add(favorito);
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    async removerFavorito(anotacaoId) {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['favoritos'], 'readwrite');
+            const store = transaction.objectStore('favoritos');
+            
+            const request = store.delete(`fav_${anotacaoId}`);
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    async isFavorito(anotacaoId) {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['favoritos'], 'readonly');
+            const store = transaction.objectStore('favoritos');
+            
+            const request = store.get(`fav_${anotacaoId}`);
+            request.onsuccess = () => resolve(!!request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    async getFavoritos() {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['favoritos', 'anotacoes'], 'readonly');
+            const favoritosStore = transaction.objectStore('favoritos');
+            const anotacoesStore = transaction.objectStore('anotacoes');
+            
+            const request = favoritosStore.getAll();
+            
+            request.onsuccess = async () => {
+                const favoritos = request.result || [];
+                const anotacoes = [];
+                
+                for (const fav of favoritos) {
+                    const anotacaoRequest = anotacoesStore.get(fav.anotacaoId);
+                    await new Promise((res) => {
+                        anotacaoRequest.onsuccess = () => {
+                            if (anotacaoRequest.result) {
+                                anotacoes.push({
+                                    ...anotacaoRequest.result,
+                                    dataFavorito: fav.dataAdicionado
+                                });
+                            }
+                            res();
+                        };
+                    });
+                }
+                
+                anotacoes.sort((a, b) => {
+                    const dateA = new Date(a.dataFavorito || 0);
+                    const dateB = new Date(b.dataFavorito || 0);
+                    return dateB - dateA;
+                });
+                
+                resolve(anotacoes);
+            };
+            
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    // Comentários
+    async adicionarComentario(comentario) {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['comentarios'], 'readwrite');
+            const store = transaction.objectStore('comentarios');
+            
+            const dados = {
+                anotacaoId: Number(comentario.anotacaoId),
+                autor: comentario.autor || 'Anônimo',
+                autorUsername: comentario.autorUsername || '',
+                conteudo: comentario.conteudo || '',
+                dataCriacao: new Date().toISOString(),
+                aprovado: comentario.aprovado || false
+            };
+            
+            const request = store.add(dados);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    async getComentarios(anotacaoId) {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['comentarios'], 'readonly');
+            const store = transaction.objectStore('comentarios');
+            const index = store.index('anotacaoId');
+            
+            const request = index.getAll(Number(anotacaoId));
+            
+            request.onsuccess = () => {
+                let comentarios = request.result || [];
+                comentarios.sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao));
+                resolve(comentarios);
+            };
+            
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    async aprovarComentario(id) {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['comentarios'], 'readwrite');
+            const store = transaction.objectStore('comentarios');
+            
+            const getRequest = store.get(Number(id));
+            getRequest.onsuccess = () => {
+                const comentario = getRequest.result;
+                if (comentario) {
+                    comentario.aprovado = true;
+                    const putRequest = store.put(comentario);
+                    putRequest.onsuccess = () => resolve(true);
+                    putRequest.onerror = () => reject(putRequest.error);
+                } else {
+                    reject(new Error('Comentário não encontrado'));
+                }
+            };
+            getRequest.onerror = () => reject(getRequest.error);
+        });
+    }
+    
+    async excluirComentario(id) {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['comentarios'], 'readwrite');
+            const store = transaction.objectStore('comentarios');
+            
+            const request = store.delete(Number(id));
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    async getComentariosPendentes() {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['comentarios'], 'readonly');
+            const store = transaction.objectStore('comentarios');
+            const index = store.index('aprovado');
+            
+            const request = index.getAll(false);
+            
+            request.onsuccess = () => {
+                const comentarios = request.result || [];
+                comentarios.sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao));
+                resolve(comentarios);
+            };
+            
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    // Limpar banco de dados
+    async limparBanco() {
+        await this.ensureDB();
+        
+        return new Promise((resolve, reject) => {
+            try {
+                const transaction = this.db.transaction(['anotacoes', 'configuracoes', 'favoritos', 'comentarios'], 'readwrite');
+                transaction.objectStore('anotacoes').clear();
+                transaction.objectStore('configuracoes').clear();
+                transaction.objectStore('favoritos').clear();
+                transaction.objectStore('comentarios').clear();
+                
+                transaction.oncomplete = () => resolve(true);
+                transaction.onerror = () => reject(transaction.error);
+                
+            } catch (error) {
+                console.error('Erro ao limpar banco:', error);
+                reject(error);
+            }
+        });
+    }
+    
+    // Inicializar dados padrão
+    async inicializarDadosPadrao() {
+        try {
+            const config = await this.getConfig('dados_inicializados_v3');
+            
+            if (!config || !config.valor) {
+                console.log('Inicializando dados padrão...');
+                
+                const anotacoesExistentes = await this.getTodasAnotacoes();
+                if (anotacoesExistentes.length === 0) {
+                    const anotacoesPadrao = [
+                        {
+                            topico: 'cadastro',
+                            subtopico: 'familia',
+                            tipo: 'guia',
+                            titulo: 'Processo de Cadastro de Família',
+                            subtitulo: 'Passo a passo completo',
+                            conteudo: 'O cadastro de famílias é fundamental para a organização dos produtos no sistema Consinco.\n\n**Pré-requisitos:**\n- Ter acesso ao módulo de cadastros\n- Conhecer a estrutura de produtos da empresa\n\n**Passo a passo:**\n1. Acesse o menu Cadastros\n2. Selecione Produtos\n3. Clique em Família\n4. Preencha os campos obrigatórios\n5. Salve o cadastro',
+                            tags: ['importante', 'passo-a-passo'],
+                            autor: 'Sistema',
+                            autorUsername: 'sistema'
+                        },
+                        {
+                            topico: 'cadastro',
+                            subtopico: 'familia',
+                            tipo: 'observacao',
+                            titulo: 'Observação importante',
+                            subtitulo: '',
+                            conteudo: 'Lembre-se de verificar se a família já não existe antes de criar uma nova. Famílias duplicadas podem causar problemas nos relatórios.',
+                            tags: ['atenção'],
+                            autor: 'Sistema',
+                            autorUsername: 'sistema'
+                        },
+                        {
+                            topico: 'recebimento',
+                            subtopico: 'nfe',
+                            tipo: 'guia',
+                            titulo: 'Recebimento de Nota Fiscal',
+                            subtitulo: 'Procedimento padrão',
+                            conteudo: '**Processo de recebimento de NFE:**\n\n1. Acesse o módulo de Recebimento\n2. Selecione a opção NFE\n3. Informe o número da nota fiscal\n4. Confira os dados do fornecedor\n5. Verifique os produtos e quantidades\n6. Confirme o recebimento\n\n==Importante:== Sempre confira se os valores da nota batem com o pedido de compra.',
+                            tags: ['nfe', 'recebimento'],
+                            autor: 'Sistema',
+                            autorUsername: 'sistema'
+                        }
+                    ];
+                    
+                    for (const anotacao of anotacoesPadrao) {
+                        await this.salvarAnotacao(anotacao);
+                    }
+                }
+                
+                await this.setConfig('dados_inicializados_v3', true);
+                console.log('Dados padrão inicializados');
+            }
+        } catch (error) {
+            console.error('Erro ao inicializar dados padrão:', error);
+        }
+    }
+}
+
+// Instância global do banco de dados
+const db = new Database();
+
+window.limparBanco = async () => {
+    await db.limparBanco();
+    console.log('Banco limpo. Recarregue a página.');
+};
