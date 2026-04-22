@@ -3,8 +3,20 @@
         <h1 id="page-title">Dashboard</h1>
         <span class="breadcrumb" id="breadcrumb"></span>
     </div>
+    <div class="header-search">
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Pesquisar guias..." />
+            <button class="btn-icon" id="clear-search" style="display: none;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
     <div class="header-actions">
-        <button class="btn-icon" title="Atualizar" onclick="location.reload()">
+        <button class="btn-icon" id="btn-export" title="Exportar">
+            <i class="fas fa-download"></i>
+        </button>
+        <button class="btn-icon" id="btn-refresh" title="Atualizar" onclick="location.reload()">
             <i class="fas fa-sync-alt"></i>
         </button>
         <button id="btn-logout" class="btn-logout">
