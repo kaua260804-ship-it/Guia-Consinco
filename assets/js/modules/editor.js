@@ -1,4 +1,4 @@
-// Módulo do Editor de Anotações
+// Modulo do Editor de Anotacoes
 class Editor {
     constructor() {
         this.currentAnotacao = null;
@@ -11,9 +11,9 @@ class Editor {
         this.currentSubtopico = subtopico;
         this.currentAnotacao = anotacao || null;
         
-        const modal = document.getElementById('editor-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const container = document.getElementById('editor-container');
+        var modal = document.getElementById('editor-modal');
+        var modalTitle = document.getElementById('modal-title');
+        var container = document.getElementById('editor-container');
         
         if (!modal || !modalTitle || !container) {
             console.error('Elementos do modal nao encontrados');
@@ -24,7 +24,10 @@ class Editor {
         container.innerHTML = this.getEditorHTML();
         
         if (anotacao) {
-            setTimeout(() => this.preencherFormulario(anotacao), 100);
+            var self = this;
+            setTimeout(function() {
+                self.preencherFormulario(anotacao);
+            }, 100);
         }
         
         this.setupEventListeners();
@@ -32,56 +35,64 @@ class Editor {
     }
     
     getEditorHTML() {
-        return '<form id="anotacao-form">' +
-            '<div class="form-group">' +
-                '<label for="anotacao-tipo">Tipo de Conteudo</label>' +
-                '<select id="anotacao-tipo" required>' +
-                    '<option value="guia">📘 Guia</option>' +
-                    '<option value="observacao">📝 Observacao</option>' +
-                '</select>' +
-                '<small style="color: #666; display: block; margin-top: 5px;">' +
-                    '<strong>Guia:</strong> Conteudo principal com titulo e subtitulo<br>' +
-                    '<strong>Observacao:</strong> Notas complementares ou lembretes' +
-                '</small>' +
-            '</div>' +
-            '<div class="form-group">' +
-                '<label for="anotacao-titulo">Titulo Principal</label>' +
-                '<input type="text" id="anotacao-titulo" required placeholder="Ex: Cadastro de Familia de Produtos">' +
-            '</div>' +
-            '<div class="form-group">' +
-                '<label for="anotacao-subtitulo">Subtitulo (opcional)</label>' +
-                '<input type="text" id="anotacao-subtitulo" placeholder="Ex: TELA - DADOS FISCAIS">' +
-            '</div>' +
-            '<div class="form-group">' +
-                '<label for="anotacao-conteudo">Conteudo</label>' +
-                '<div class="editor-toolbar">' +
-                    '<button type="button" data-format="bold" title="Negrito ( **texto** )"><i class="fas fa-bold"></i></button>' +
-                    '<button type="button" data-format="italic" title="Italico ( *texto* )"><i class="fas fa-italic"></i></button>' +
-                    '<button type="button" data-format="underline" title="Sublinhado ( __texto__ )"><i class="fas fa-underline"></i></button>' +
-                    '<button type="button" data-format="list" title="Lista ( - item )"><i class="fas fa-list"></i></button>' +
-                    '<button type="button" data-format="number-list" title="Lista Numerada ( 1. item )"><i class="fas fa-list-ol"></i></button>' +
-                    '<button type="button" data-format="highlight" title="Destacar ( ==texto== )"><i class="fas fa-highlighter"></i></button>' +
-                    '<button type="button" data-format="code" title="Codigo ( `codigo` )"><i class="fas fa-code"></i></button>' +
-                '</div>' +
-                '<textarea id="anotacao-conteudo" rows="15" required placeholder="Digite o conteudo do guia aqui..."></textarea>' +
-            '</div>' +
-            '<div class="form-group">' +
-                '<label for="anotacao-tags">Tags (separadas por virgula)</label>' +
-                '<input type="text" id="anotacao-tags" placeholder="Ex: importante, revisar, urgente">' +
-            '</div>' +
-            '<div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">' +
-                '<button type="button" class="btn-sm" id="btn-cancelar-editor"><i class="fas fa-times"></i> Cancelar</button>' +
-                '<button type="submit" class="btn-sm btn-success"><i class="fas fa-save"></i> Salvar</button>' +
-            '</div>' +
-        '</form>';
+        var html = '';
+        html += '<form id="anotacao-form">';
+        html += '<div class="form-group">';
+        html += '<label for="anotacao-tipo">Tipo de Conteudo</label>';
+        html += '<select id="anotacao-tipo" required>';
+        html += '<option value="guia">📘 Guia</option>';
+        html += '<option value="observacao">📝 Observacao</option>';
+        html += '</select>';
+        html += '<small style="color: #666; display: block; margin-top: 5px;">';
+        html += '<strong>Guia:</strong> Conteudo principal com titulo e subtitulo<br>';
+        html += '<strong>Observacao:</strong> Notas complementares ou lembretes';
+        html += '</small>';
+        html += '</div>';
+        
+        html += '<div class="form-group">';
+        html += '<label for="anotacao-titulo">Titulo Principal</label>';
+        html += '<input type="text" id="anotacao-titulo" required placeholder="Ex: Cadastro de Familia de Produtos">';
+        html += '</div>';
+        
+        html += '<div class="form-group">';
+        html += '<label for="anotacao-subtitulo">Subtitulo (opcional)</label>';
+        html += '<input type="text" id="anotacao-subtitulo" placeholder="Ex: TELA - DADOS FISCAIS">';
+        html += '</div>';
+        
+        html += '<div class="form-group">';
+        html += '<label for="anotacao-conteudo">Conteudo</label>';
+        html += '<div class="editor-toolbar">';
+        html += '<button type="button" data-format="bold" title="Negrito"><i class="fas fa-bold"></i></button>';
+        html += '<button type="button" data-format="italic" title="Italico"><i class="fas fa-italic"></i></button>';
+        html += '<button type="button" data-format="underline" title="Sublinhado"><i class="fas fa-underline"></i></button>';
+        html += '<button type="button" data-format="list" title="Lista"><i class="fas fa-list"></i></button>';
+        html += '<button type="button" data-format="number-list" title="Lista Numerada"><i class="fas fa-list-ol"></i></button>';
+        html += '<button type="button" data-format="highlight" title="Destacar"><i class="fas fa-highlighter"></i></button>';
+        html += '<button type="button" data-format="code" title="Codigo"><i class="fas fa-code"></i></button>';
+        html += '</div>';
+        html += '<textarea id="anotacao-conteudo" rows="15" required placeholder="Digite o conteudo do guia aqui..."></textarea>';
+        html += '</div>';
+        
+        html += '<div class="form-group">';
+        html += '<label for="anotacao-tags">Tags (separadas por virgula)</label>';
+        html += '<input type="text" id="anotacao-tags" placeholder="Ex: importante, revisar, urgente">';
+        html += '</div>';
+        
+        html += '<div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">';
+        html += '<button type="button" class="btn-sm" id="btn-cancelar-editor"><i class="fas fa-times"></i> Cancelar</button>';
+        html += '<button type="submit" class="btn-sm btn-success"><i class="fas fa-save"></i> Salvar</button>';
+        html += '</div>';
+        html += '</form>';
+        
+        return html;
     }
     
     preencherFormulario(anotacao) {
-        const tipoSelect = document.getElementById('anotacao-tipo');
-        const tituloInput = document.getElementById('anotacao-titulo');
-        const subtituloInput = document.getElementById('anotacao-subtitulo');
-        const conteudoTextarea = document.getElementById('anotacao-conteudo');
-        const tagsInput = document.getElementById('anotacao-tags');
+        var tipoSelect = document.getElementById('anotacao-tipo');
+        var tituloInput = document.getElementById('anotacao-titulo');
+        var subtituloInput = document.getElementById('anotacao-subtitulo');
+        var conteudoTextarea = document.getElementById('anotacao-conteudo');
+        var tagsInput = document.getElementById('anotacao-tags');
         
         if (tipoSelect) tipoSelect.value = anotacao.tipo || 'guia';
         if (tituloInput) tituloInput.value = anotacao.titulo || '';
@@ -93,25 +104,26 @@ class Editor {
     }
     
     setupEventListeners() {
-        const self = this;
+        var self = this;
         
-        document.querySelectorAll('[data-format]').forEach(button => {
-            button.addEventListener('click', function(e) {
+        var formatButtons = document.querySelectorAll('[data-format]');
+        for (var i = 0; i < formatButtons.length; i++) {
+            formatButtons[i].addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 self.aplicarFormatacao(this.dataset.format);
             });
-        });
+        }
         
-        const form = document.getElementById('anotacao-form');
+        var form = document.getElementById('anotacao-form');
         if (form) {
-            form.addEventListener('submit', async function(e) {
+            form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                await self.salvarAnotacao();
+                self.salvarAnotacao();
             });
         }
         
-        const btnCancelar = document.getElementById('btn-cancelar-editor');
+        var btnCancelar = document.getElementById('btn-cancelar-editor');
         if (btnCancelar) {
             btnCancelar.addEventListener('click', function() {
                 document.getElementById('editor-modal').style.display = 'none';
@@ -120,14 +132,13 @@ class Editor {
     }
     
     aplicarFormatacao(format) {
-        const textarea = document.getElementById('anotacao-conteudo');
+        var textarea = document.getElementById('anotacao-conteudo');
         if (!textarea) return;
         
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const selectedText = textarea.value.substring(start, end);
-        
-        let formattedText = '';
+        var start = textarea.selectionStart;
+        var end = textarea.selectionEnd;
+        var selectedText = textarea.value.substring(start, end);
+        var formattedText = '';
         
         if (format === 'bold') {
             formattedText = '**' + (selectedText || 'texto em negrito') + '**';
@@ -141,13 +152,21 @@ class Editor {
             formattedText = '`' + (selectedText || 'codigo') + '`';
         } else if (format === 'list') {
             if (selectedText) {
-                formattedText = selectedText.split('\n').map(line => '- ' + line).join('\n');
+                var lines = selectedText.split('\n');
+                formattedText = '';
+                for (var i = 0; i < lines.length; i++) {
+                    formattedText += '- ' + lines[i] + '\n';
+                }
             } else {
                 formattedText = '- Item 1\n- Item 2\n- Item 3';
             }
         } else if (format === 'number-list') {
             if (selectedText) {
-                formattedText = selectedText.split('\n').map((line, i) => (i + 1) + '. ' + line).join('\n');
+                var lines = selectedText.split('\n');
+                formattedText = '';
+                for (var i = 0; i < lines.length; i++) {
+                    formattedText += (i + 1) + '. ' + lines[i] + '\n';
+                }
             } else {
                 formattedText = '1. Primeiro item\n2. Segundo item\n3. Terceiro item';
             }
@@ -159,43 +178,43 @@ class Editor {
         }
     }
     
-    async salvarAnotacao() {
-        const self = this;
-        const tipoSelect = document.getElementById('anotacao-tipo');
-        const tituloInput = document.getElementById('anotacao-titulo');
-        const subtituloInput = document.getElementById('anotacao-subtitulo');
-        const conteudoTextarea = document.getElementById('anotacao-conteudo');
-        const tagsInput = document.getElementById('anotacao-tags');
+    salvarAnotacao() {
+        var self = this;
+        var tipoSelect = document.getElementById('anotacao-tipo');
+        var tituloInput = document.getElementById('anotacao-titulo');
+        var subtituloInput = document.getElementById('anotacao-subtitulo');
+        var conteudoTextarea = document.getElementById('anotacao-conteudo');
+        var tagsInput = document.getElementById('anotacao-tags');
         
         if (!tipoSelect || !tituloInput || !conteudoTextarea) {
             console.error('Elementos do formulario nao encontrados');
             return;
         }
         
-        const tipo = tipoSelect.value;
-        const titulo = tituloInput.value.trim();
-        const subtitulo = subtituloInput ? subtituloInput.value.trim() : '';
-        const conteudo = conteudoTextarea.value.trim();
-        const tagsStr = tagsInput ? tagsInput.value : '';
+        var tipo = tipoSelect.value;
+        var titulo = tituloInput.value.trim();
+        var subtitulo = subtituloInput ? subtituloInput.value.trim() : '';
+        var conteudo = conteudoTextarea.value.trim();
+        var tagsStr = tagsInput ? tagsInput.value : '';
         
         if (!titulo || !conteudo) {
             alert('Titulo e conteudo sao obrigatorios');
             return;
         }
         
-        let user = null;
+        var user = null;
         if (typeof auth !== 'undefined' && auth.getCurrentUser) {
             user = auth.getCurrentUser();
         }
         
-        const anotacao = {
+        var anotacao = {
             topico: this.currentTopico,
             subtopico: this.currentSubtopico,
             tipo: tipo,
             titulo: titulo,
             subtitulo: subtitulo || null,
             conteudo: conteudo,
-            tags: tagsStr.split(',').map(t => t.trim()).filter(t => t),
+            tags: tagsStr.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t; }),
             autor: user ? user.name : 'Sistema',
             autorUsername: user ? user.username : 'sistema'
         };
@@ -205,35 +224,42 @@ class Editor {
             anotacao.dataCriacao = this.currentAnotacao.dataCriacao;
         }
         
-        try {
-            if (typeof app !== 'undefined' && app.salvarAnotacao) {
-                await app.salvarAnotacao(anotacao, !anotacao.id);
-            } else if (typeof db !== 'undefined') {
-                await db.salvarAnotacao(anotacao);
-            }
-            
+        var isNew = !anotacao.id;
+        
+        var promise;
+        if (typeof app !== 'undefined' && app.salvarAnotacao) {
+            promise = app.salvarAnotacao(anotacao, isNew);
+        } else if (typeof db !== 'undefined' && db.salvarAnotacao) {
+            promise = db.salvarAnotacao(anotacao);
+        } else {
+            alert('Erro: Banco de dados nao disponivel');
+            return;
+        }
+        
+        promise.then(function() {
             document.getElementById('editor-modal').style.display = 'none';
             
-            if (typeof ui !== 'undefined') {
+            if (typeof ui !== 'undefined' && ui.showNotification) {
                 ui.showNotification('Salvo com sucesso!', 'success');
             } else {
                 alert('Salvo com sucesso!');
             }
             
             if (typeof app !== 'undefined' && app.carregarAnotacoes) {
-                await app.carregarAnotacoes(self.currentTopico, self.currentSubtopico);
+                app.carregarAnotacoes(self.currentTopico, self.currentSubtopico);
+            } else {
+                location.reload();
             }
-            
-        } catch (error) {
+        }).catch(function(error) {
             console.error('Erro ao salvar:', error);
             alert('Erro ao salvar: ' + error.message);
-        }
+        });
     }
     
     formatarConteudo(texto) {
         if (!texto) return '';
         
-        let html = texto;
+        var html = texto;
         
         html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
@@ -242,13 +268,13 @@ class Editor {
         html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
         html = html.replace(/__([^_]+)__/g, '<u>$1</u>');
         
-        const lines = html.split('\n');
-        let result = [];
-        let inList = false;
-        let inNumberedList = false;
+        var lines = html.split('\n');
+        var result = [];
+        var inList = false;
+        var inNumberedList = false;
         
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i];
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
             
             if (line.match(/^- /)) {
                 if (!inList) {
@@ -294,6 +320,6 @@ class Editor {
     }
 }
 
-// Criar instância global
-const editor = new Editor();
+// Criar instancia global
+var editor = new Editor();
 window.editor = editor;
