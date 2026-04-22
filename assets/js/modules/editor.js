@@ -16,11 +16,11 @@ class Editor {
         const container = document.getElementById('editor-container');
         
         if (!modal || !modalTitle || !container) {
-            console.error('Elementos do modal não encontrados');
+            console.error('Elementos do modal nao encontrados');
             return;
         }
         
-        modalTitle.textContent = anotacao ? 'Editar Conteúdo' : 'Novo Conteúdo';
+        modalTitle.textContent = anotacao ? 'Editar Conteudo' : 'Novo Conteudo';
         container.innerHTML = this.getEditorHTML();
         
         if (anotacao) {
@@ -32,86 +32,48 @@ class Editor {
     }
     
     getEditorHTML() {
-        return `
-            <form id="anotacao-form">
-                <div class="form-group">
-                    <label for="anotacao-tipo">Tipo de Conteúdo</label>
-                    <select id="anotacao-tipo" required>
-                        <option value="guia">📘 Guia</option>
-                        <option value="observacao">📝 Observação</option>
-                    </select>
-                    <small style="color: #666; display: block; margin-top: 5px;">
-                        <strong>Guia:</strong> Conteúdo principal com título e subtítulo<br>
-                        <strong>Observação:</strong> Notas complementares ou lembretes
-                    </small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="anotacao-titulo">Título Principal</label>
-                    <input type="text" id="anotacao-titulo" required 
-                           placeholder="Ex: Cadastro de Família de Produtos">
-                </div>
-                
-                <div class="form-group">
-                    <label for="anotacao-subtitulo">Subtítulo (opcional)</label>
-                    <input type="text" id="anotacao-subtitulo" 
-                           placeholder="Ex: TELA - DADOS FISCAIS">
-                </div>
-                
-                <div class="form-group">
-                    <label for="anotacao-conteudo">Conteúdo</label>
-                    <div class="editor-toolbar">
-                        <button type="button" data-format="bold" title="Negrito ( **texto** )">
-                            <i class="fas fa-bold"></i>
-                        </button>
-                        <button type="button" data-format="italic" title="Itálico ( *texto* )">
-                            <i class="fas fa-italic"></i>
-                        </button>
-                        <button type="button" data-format="underline" title="Sublinhado ( __texto__ )">
-                            <i class="fas fa-underline"></i>
-                        </button>
-                        <button type="button" data-format="list" title="Lista ( - item )">
-                            <i class="fas fa-list"></i>
-                        </button>
-                        <button type="button" data-format="number-list" title="Lista Numerada ( 1. item )">
-                            <i class="fas fa-list-ol"></i>
-                        </button>
-                        <button type="button" data-format="highlight" title="Destacar ( ==texto== )">
-                            <i class="fas fa-highlighter"></i>
-                        </button>
-                        <button type="button" data-format="code" title="Código ( `código` )">
-                            <i class="fas fa-code"></i>
-                        </button>
-                    </div>
-                    <textarea id="anotacao-conteudo" rows="15" required 
-                              placeholder="Digite o conteúdo do guia aqui...
-
-Formatações disponíveis:
-**negrito**
-*itálico*
-__sublinhado__
-==texto destacado==
-`código`
-- lista
-1. lista numerada"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="anotacao-tags">Tags (separadas por vírgula)</label>
-                    <input type="text" id="anotacao-tags" 
-                           placeholder="Ex: importante, revisar, urgente">
-                </div>
-                
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-                    <button type="button" class="btn-sm" id="btn-cancelar-editor">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                    <button type="submit" class="btn-sm btn-success">
-                        <i class="fas fa-save"></i> Salvar
-                    </button>
-                </div>
-            </form>
-        `;
+        return '<form id="anotacao-form">' +
+            '<div class="form-group">' +
+                '<label for="anotacao-tipo">Tipo de Conteudo</label>' +
+                '<select id="anotacao-tipo" required>' +
+                    '<option value="guia">📘 Guia</option>' +
+                    '<option value="observacao">📝 Observacao</option>' +
+                '</select>' +
+                '<small style="color: #666; display: block; margin-top: 5px;">' +
+                    '<strong>Guia:</strong> Conteudo principal com titulo e subtitulo<br>' +
+                    '<strong>Observacao:</strong> Notas complementares ou lembretes' +
+                '</small>' +
+            '</div>' +
+            '<div class="form-group">' +
+                '<label for="anotacao-titulo">Titulo Principal</label>' +
+                '<input type="text" id="anotacao-titulo" required placeholder="Ex: Cadastro de Familia de Produtos">' +
+            '</div>' +
+            '<div class="form-group">' +
+                '<label for="anotacao-subtitulo">Subtitulo (opcional)</label>' +
+                '<input type="text" id="anotacao-subtitulo" placeholder="Ex: TELA - DADOS FISCAIS">' +
+            '</div>' +
+            '<div class="form-group">' +
+                '<label for="anotacao-conteudo">Conteudo</label>' +
+                '<div class="editor-toolbar">' +
+                    '<button type="button" data-format="bold" title="Negrito ( **texto** )"><i class="fas fa-bold"></i></button>' +
+                    '<button type="button" data-format="italic" title="Italico ( *texto* )"><i class="fas fa-italic"></i></button>' +
+                    '<button type="button" data-format="underline" title="Sublinhado ( __texto__ )"><i class="fas fa-underline"></i></button>' +
+                    '<button type="button" data-format="list" title="Lista ( - item )"><i class="fas fa-list"></i></button>' +
+                    '<button type="button" data-format="number-list" title="Lista Numerada ( 1. item )"><i class="fas fa-list-ol"></i></button>' +
+                    '<button type="button" data-format="highlight" title="Destacar ( ==texto== )"><i class="fas fa-highlighter"></i></button>' +
+                    '<button type="button" data-format="code" title="Codigo ( `codigo` )"><i class="fas fa-code"></i></button>' +
+                '</div>' +
+                '<textarea id="anotacao-conteudo" rows="15" required placeholder="Digite o conteudo do guia aqui..."></textarea>' +
+            '</div>' +
+            '<div class="form-group">' +
+                '<label for="anotacao-tags">Tags (separadas por virgula)</label>' +
+                '<input type="text" id="anotacao-tags" placeholder="Ex: importante, revisar, urgente">' +
+            '</div>' +
+            '<div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">' +
+                '<button type="button" class="btn-sm" id="btn-cancelar-editor"><i class="fas fa-times"></i> Cancelar</button>' +
+                '<button type="submit" class="btn-sm btn-success"><i class="fas fa-save"></i> Salvar</button>' +
+            '</div>' +
+        '</form>';
     }
     
     preencherFormulario(anotacao) {
@@ -131,25 +93,27 @@ __sublinhado__
     }
     
     setupEventListeners() {
+        const self = this;
+        
         document.querySelectorAll('[data-format]').forEach(button => {
-            button.addEventListener('click', (e) => {
+            button.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                this.aplicarFormatacao(button.dataset.format);
+                self.aplicarFormatacao(this.dataset.format);
             });
         });
         
         const form = document.getElementById('anotacao-form');
         if (form) {
-            form.addEventListener('submit', async (e) => {
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                await this.salvarAnotacao();
+                await self.salvarAnotacao();
             });
         }
         
         const btnCancelar = document.getElementById('btn-cancelar-editor');
         if (btnCancelar) {
-            btnCancelar.addEventListener('click', () => {
+            btnCancelar.addEventListener('click', function() {
                 document.getElementById('editor-modal').style.display = 'none';
             });
         }
@@ -164,57 +128,39 @@ __sublinhado__
         const selectedText = textarea.value.substring(start, end);
         
         let formattedText = '';
-        let cursorOffset = 0;
         
-        switch(format) {
-            case 'bold':
-                formattedText = `**${selectedText || 'texto em negrito'}**`;
-                cursorOffset = selectedText ? 0 : 2;
-                break;
-            case 'italic':
-                formattedText = `*${selectedText || 'texto em itálico'}*`;
-                cursorOffset = selectedText ? 0 : 1;
-                break;
-            case 'underline':
-                formattedText = `__${selectedText || 'texto sublinhado'}__`;
-                cursorOffset = selectedText ? 0 : 2;
-                break;
-            case 'highlight':
-                formattedText = `==${selectedText || 'texto destacado'}==`;
-                cursorOffset = selectedText ? 0 : 2;
-                break;
-            case 'code':
-                formattedText = `\`${selectedText || 'código'}\``;
-                cursorOffset = selectedText ? 0 : 1;
-                break;
-            case 'list':
-                if (selectedText) {
-                    formattedText = selectedText.split('\n').map(line => `- ${line}`).join('\n');
-                } else {
-                    formattedText = '- Item 1\n- Item 2\n- Item 3';
-                }
-                break;
-            case 'number-list':
-                if (selectedText) {
-                    formattedText = selectedText.split('\n').map((line, i) => `${i + 1}. ${line}`).join('\n');
-                } else {
-                    formattedText = '1. Primeiro item\n2. Segundo item\n3. Terceiro item';
-                }
-                break;
-            default:
-                return;
+        if (format === 'bold') {
+            formattedText = '**' + (selectedText || 'texto em negrito') + '**';
+        } else if (format === 'italic') {
+            formattedText = '*' + (selectedText || 'texto em italico') + '*';
+        } else if (format === 'underline') {
+            formattedText = '__' + (selectedText || 'texto sublinhado') + '__';
+        } else if (format === 'highlight') {
+            formattedText = '==' + (selectedText || 'texto destacado') + '==';
+        } else if (format === 'code') {
+            formattedText = '`' + (selectedText || 'codigo') + '`';
+        } else if (format === 'list') {
+            if (selectedText) {
+                formattedText = selectedText.split('\n').map(line => '- ' + line).join('\n');
+            } else {
+                formattedText = '- Item 1\n- Item 2\n- Item 3';
+            }
+        } else if (format === 'number-list') {
+            if (selectedText) {
+                formattedText = selectedText.split('\n').map((line, i) => (i + 1) + '. ' + line).join('\n');
+            } else {
+                formattedText = '1. Primeiro item\n2. Segundo item\n3. Terceiro item';
+            }
         }
         
-        textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-        textarea.focus();
-        
-        if (!selectedText) {
-            const newPosition = start + formattedText.length - cursorOffset;
-            textarea.setSelectionRange(newPosition, newPosition);
+        if (formattedText) {
+            textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+            textarea.focus();
         }
     }
     
     async salvarAnotacao() {
+        const self = this;
         const tipoSelect = document.getElementById('anotacao-tipo');
         const tituloInput = document.getElementById('anotacao-titulo');
         const subtituloInput = document.getElementById('anotacao-subtitulo');
@@ -222,7 +168,7 @@ __sublinhado__
         const tagsInput = document.getElementById('anotacao-tags');
         
         if (!tipoSelect || !tituloInput || !conteudoTextarea) {
-            console.error('Elementos do formulário não encontrados');
+            console.error('Elementos do formulario nao encontrados');
             return;
         }
         
@@ -233,7 +179,7 @@ __sublinhado__
         const tagsStr = tagsInput ? tagsInput.value : '';
         
         if (!titulo || !conteudo) {
-            alert('Título e conteúdo são obrigatórios');
+            alert('Titulo e conteudo sao obrigatorios');
             return;
         }
         
@@ -260,10 +206,8 @@ __sublinhado__
         }
         
         try {
-            const isNew = !anotacao.id;
-            
             if (typeof app !== 'undefined' && app.salvarAnotacao) {
-                await app.salvarAnotacao(anotacao, isNew);
+                await app.salvarAnotacao(anotacao, !anotacao.id);
             } else if (typeof db !== 'undefined') {
                 await db.salvarAnotacao(anotacao);
             }
@@ -277,7 +221,7 @@ __sublinhado__
             }
             
             if (typeof app !== 'undefined' && app.carregarAnotacoes) {
-                await app.carregarAnotacoes(this.currentTopico, this.currentSubtopico);
+                await app.carregarAnotacoes(self.currentTopico, self.currentSubtopico);
             }
             
         } catch (error) {
@@ -291,25 +235,13 @@ __sublinhado__
         
         let html = texto;
         
-        // Escapar HTML primeiro
         html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        
-        // Código inline `código`
         html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-        
-        // Destaque ==texto==
         html = html.replace(/==([^=]+)==/g, '<mark>$1</mark>');
-        
-        // Negrito **texto**
         html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-        
-        // Itálico *texto*
         html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-        
-        // Sublinhado __texto__
         html = html.replace(/__([^_]+)__/g, '<u>$1</u>');
         
-        // Processar linhas
         const lines = html.split('\n');
         let result = [];
         let inList = false;
@@ -318,7 +250,6 @@ __sublinhado__
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
             
-            // Verificar lista não numerada (- item)
             if (line.match(/^- /)) {
                 if (!inList) {
                     result.push('<ul>');
@@ -331,7 +262,6 @@ __sublinhado__
                 inList = false;
             }
             
-            // Verificar lista numerada (1. item)
             if (line.match(/^\d+\. /)) {
                 if (!inNumberedList) {
                     result.push('<ol>');
@@ -344,7 +274,6 @@ __sublinhado__
                 inNumberedList = false;
             }
             
-            // Linha normal
             if (line.trim() === '') {
                 result.push('<br>');
             } else {
@@ -352,17 +281,12 @@ __sublinhado__
             }
         }
         
-        // Fechar listas abertas
         if (inList) result.push('</ul>');
         if (inNumberedList) result.push('</ol>');
         
         html = result.join('\n');
-        
-        // Converter quebras de linha duplas em parágrafos
         html = html.replace(/\n\n/g, '</p><p>');
         html = '<p>' + html + '</p>';
-        
-        // Corrigir parágrafos vazios
         html = html.replace(/<p><\/p>/g, '');
         html = html.replace(/<p><br><\/p>/g, '<br>');
         
