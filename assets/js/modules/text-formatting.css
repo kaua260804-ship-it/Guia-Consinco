@@ -1,0 +1,50 @@
+/* Formatação de Texto */
+.anotacao-conteudo mark {
+    background: linear-gradient(120deg, #fff3cd 0%, #fff3cd 100%);
+    background-repeat: no-repeat;
+    background-size: 100% 40%;
+    background-position: 0 90%;
+    padding: 2px 0;
+    font-weight: 500;
+}
+
+.anotacao-conteudo code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #e74c3c;
+    border: 1px solid #e0e0e0;
+}
+
+.anotacao-conteudo ul, 
+.anotacao-conteudo ol {
+    margin: 10px 0 10px 25px;
+}
+
+.anotacao-conteudo li {
+    margin-bottom: 5px;
+    line-height: 1.6;
+}
+
+.anotacao-conteudo strong {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.anotacao-conteudo em {
+    font-style: italic;
+    color: #555;
+}
+
+.anotacao-conteudo u {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.search-results-highlight {
+    background: #fff3cd;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
