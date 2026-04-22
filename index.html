@@ -2,15 +2,17 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2c3e50">
     <title>Guia Consinco - Sistema de Anotações</title>
     
     <script>
-        var BASE_PATH = '/Guia-Consinco';
+        const BASE_PATH = '/Guia-Consinco';
     </script>
     
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -18,33 +20,72 @@
         
         <div class="main-content">
             <div id="header-container"></div>
+            <div id="online-users" class="online-users-container"></div>
             
             <div class="content-wrapper" id="content-wrapper">
                 <div class="welcome-screen">
                     <i class="fas fa-book-open"></i>
-                    <h2>Bem-vindo ao Guia Consinco</h2>
+                    <h2>Guia Consinco</h2>
                     <p>Carregando...</p>
                 </div>
             </div>
         </div>
     </div>
     
+    <!-- Modais -->
     <div id="editor-modal" class="modal">
         <div class="modal-content modal-large">
             <div class="modal-header">
-                <h2 id="modal-title">Editor de Anotações</h2>
-                <span class="modal-close" onclick="document.getElementById('editor-modal').style.display='none'">&times;</span>
+                <h2 id="modal-title">Editor</h2>
+                <span class="modal-close" onclick="ui.closeModal()">&times;</span>
             </div>
-            <div class="modal-body">
-                <div id="editor-container"></div>
+            <div class="modal-body"><div id="editor-container"></div></div>
+        </div>
+    </div>
+    
+    <div id="comentarios-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="comentarios-modal-title">Comentários</h2>
+                <span class="modal-close" onclick="ui.closeComentariosModal()">&times;</span>
             </div>
+            <div class="modal-body"><div id="comentarios-container"></div></div>
+        </div>
+    </div>
+    
+    <div id="versoes-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📜 Histórico de Versões</h2>
+                <span class="modal-close" onclick="ui.closeModal()">&times;</span>
+            </div>
+            <div class="modal-body"><div id="versoes-container"></div></div>
+        </div>
+    </div>
+    
+    <div id="audit-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>📋 Registro de Atividades</h2>
+                <span class="modal-close" onclick="ui.closeModal()">&times;</span>
+            </div>
+            <div class="modal-body"><div id="audit-container"></div></div>
         </div>
     </div>
 
-    <!-- SCRIPTS - ORDEM IMPORTANTE -->
+    <!-- SCRIPTS -->
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/modules/database.js"></script>
+    <script src="assets/js/modules/ui.js"></script>
+    <script src="assets/js/modules/encryption.js"></script>
+    <script src="assets/js/modules/audit.js"></script>
     <script src="assets/js/modules/editor.js"></script>
+    <script src="assets/js/modules/search.js"></script>
+    <script src="assets/js/modules/export.js"></script>
+    <script src="assets/js/modules/favorites.js"></script>
+    <script src="assets/js/modules/comments.js"></script>
+    <script src="assets/js/modules/dashboard.js"></script>
+    <script src="assets/js/modules/mobileLayout.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 </html>
