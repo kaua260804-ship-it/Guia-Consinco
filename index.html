@@ -4,38 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2c3e50">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Guia Consinco - Sistema de Anotações</title>
+    <title>Guia Consinco - Sistema de Anotacoes</title>
     
-    <!-- Configuração para GitHub Pages -->
     <script>
-        const BASE_PATH = '/Guia-Consinco';
+        var BASE_PATH = '/Guia-Consinco';
     </script>
     
-    <!-- CSS Principal -->
     <link rel="stylesheet" href="assets/css/style.css">
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Biblioteca para PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
         <div id="sidebar-container"></div>
-        
-        <!-- Main Content -->
         <div class="main-content">
-            <!-- Header -->
             <div id="header-container"></div>
-            
-            <!-- Online Users -->
             <div id="online-users" class="online-users-container"></div>
-            
-            <!-- Content Area -->
             <div class="content-wrapper" id="content-wrapper">
                 <div class="welcome-screen">
                     <i class="fas fa-book-open"></i>
@@ -46,11 +32,10 @@
         </div>
     </div>
     
-    <!-- Modal para Editor -->
     <div id="editor-modal" class="modal">
         <div class="modal-content modal-large">
             <div class="modal-header">
-                <h2 id="modal-title">Editor de Anotações</h2>
+                <h2 id="modal-title">Editor de Anotacoes</h2>
                 <span class="modal-close" onclick="document.getElementById('editor-modal').style.display='none'">&times;</span>
             </div>
             <div class="modal-body">
@@ -59,11 +44,10 @@
         </div>
     </div>
     
-    <!-- Modal para Comentários -->
     <div id="comentarios-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="comentarios-modal-title">Comentários</h2>
+                <h2 id="comentarios-modal-title">Comentarios</h2>
                 <span class="modal-close" onclick="document.getElementById('comentarios-modal').style.display='none'">&times;</span>
             </div>
             <div class="modal-body">
@@ -72,11 +56,10 @@
         </div>
     </div>
     
-    <!-- Modal para Histórico de Versões -->
     <div id="versoes-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>📜 Histórico de Versões</h2>
+                <h2>📜 Historico de Versoes</h2>
                 <span class="modal-close" onclick="document.getElementById('versoes-modal').style.display='none'">&times;</span>
             </div>
             <div class="modal-body">
@@ -85,7 +68,6 @@
         </div>
     </div>
     
-    <!-- Modal para Logs de Auditoria -->
     <div id="audit-modal" class="modal">
         <div class="modal-content modal-large">
             <div class="modal-header">
@@ -98,31 +80,19 @@
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- SCRIPTS - ORDEM DE CARREGAMENTO IMPORTANTE    -->
-    <!-- ============================================ -->
-    
-    <!-- 1. Core - Autenticação e Banco de Dados -->
+    <!-- SCRIPTS - ORDEM IMPORTANTE -->
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/modules/database.js"></script>
-    
-    <!-- 2. UI e Utilitários -->
     <script src="assets/js/modules/ui.js"></script>
     <script src="assets/js/modules/encryption.js"></script>
     <script src="assets/js/modules/audit.js"></script>
-    
-    <!-- 3. Editor (precisa estar antes do app) -->
     <script src="assets/js/modules/editor.js"></script>
-    
-    <!-- 4. Módulos de Funcionalidades -->
     <script src="assets/js/modules/search.js"></script>
     <script src="assets/js/modules/export.js"></script>
     <script src="assets/js/modules/favorites.js"></script>
     <script src="assets/js/modules/comments.js"></script>
     <script src="assets/js/modules/dashboard.js"></script>
     <script src="assets/js/modules/mobileLayout.js"></script>
-    
-    <!-- 5. Aplicação Principal (por último) -->
     <script src="assets/js/app.js"></script>
 </body>
 </html>
