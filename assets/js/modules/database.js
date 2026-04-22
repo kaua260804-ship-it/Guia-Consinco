@@ -2,7 +2,7 @@
 class Database {
     constructor() {
         this.dbName = 'GuiaConsincoDB';
-        this.dbVersion = 2; // Incrementar versão para forçar recriação
+        this.dbVersion = 3; // Versão incrementada para incluir favoritos e comentários
         this.db = null;
         this.initPromise = null;
     }
@@ -39,8 +39,14 @@ class Database {
                 if (db.objectStoreNames.contains('configuracoes')) {
                     db.deleteObjectStore('configuracoes');
                 }
+                if (db.objectStoreNames.contains('favoritos')) {
+                    db.deleteObjectStore('favoritos');
+                }
+                if (db.objectStoreNames.contains('comentarios')) {
+                    db.deleteObjectStore('comentarios');
+                }
                 
-                // Criar nova store para anotações COM autoIncrement
+                // Store para anotações
                 const anotacoesStore = db.createObjectStore('anotacoes', { 
                     keyPath: 'id', 
                     autoIncrement: true 
@@ -51,6 +57,18 @@ class Database {
                 
                 // Store para configurações
                 db.createObjectStore('configuracoes', { keyPath: 'chave' });
+                
+                // Store para favoritos
+                const favoritosStore = db.createObjectStore('favoritos', { keyPath: 'id' });
+                favoritosStore.createIndex('anotacaoId', 'anotacaoId', { unique: true });
+                
+                // Store para comentários
+                const comentariosStore = db.createObjectStore('comentarios', { 
+                    keyPath: 'id', 
+                    autoIncrement: true 
+                });
+                comentariosStore.createIndex('anotacaoId', 'anotacaoId', { unique: false });
+                comentariosStore.createIndex('aprovado', 'aprovado', { unique: false });
                 
                 console.log('Estrutura do banco de dados criada');
             };
@@ -75,7 +93,6 @@ class Database {
                 const transaction = this.db.transaction(['anotacoes'], 'readwrite');
                 const store = transaction.objectStore('anotacoes');
                 
-                // Criar uma cópia limpa dos dados
                 const dados = {
                     topico: anotacao.topico,
                     subtopico: anotacao.subtopico,
@@ -90,41 +107,19 @@ class Database {
                     dataAtualizacao: new Date().toISOString()
                 };
                 
-                // SÓ incluir o id se NÃO for null/undefined e for um número válido
                 if (anotacao.id && !isNaN(anotacao.id) && anotacao.id > 0) {
                     dados.id = Number(anotacao.id);
                 }
-                // Se não tiver ID, o autoIncrement vai gerar um novo
-                
-                console.log('Salvando anotação:', dados);
                 
                 let request;
                 if (dados.id) {
-                    // Atualizar existente
                     request = store.put(dados);
                 } else {
-                    // Adicionar novo
                     request = store.add(dados);
                 }
                 
-                request.onsuccess = () => {
-                    console.log('Anotação salva com ID:', request.result);
-                    resolve(request.result);
-                };
-                
-                request.onerror = () => {
-                    console.error('Erro na operação do banco:', request.error);
-                    reject(request.error);
-                };
-                
-                transaction.oncomplete = () => {
-                    console.log('Transação completada');
-                };
-                
-                transaction.onerror = () => {
-                    console.error('Erro na transação:', transaction.error);
-                    reject(transaction.error);
-                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
                 
             } catch (error) {
                 console.error('Erro ao salvar anotação:', error);
@@ -151,7 +146,6 @@ class Database {
                         anotacoes = anotacoes.filter(a => a.subtopico === subtopico);
                     }
                     
-                    // Ordenar por data de criação (mais recentes primeiro)
                     anotacoes.sort((a, b) => {
                         const dateA = new Date(a.dataCriacao || 0);
                         const dateB = new Date(b.dataCriacao || 0);
@@ -195,13 +189,27 @@ class Database {
         
         return new Promise((resolve, reject) => {
             try {
-                const transaction = this.db.transaction(['anotacoes'], 'readwrite');
-                const store = transaction.objectStore('anotacoes');
+                const transaction = this.db.transaction(['anotacoes', 'favoritos', 'comentarios'], 'readwrite');
+                const anotacoesStore = transaction.objectStore('anotacoes');
+                const favoritosStore = transaction.objectStore('favoritos');
+                const comentariosStore = transaction.objectStore('comentarios');
                 
-                const request = store.delete(Number(id));
+                // Excluir anotação
+                anotacoesStore.delete(Number(id));
                 
-                request.onsuccess = () => resolve(true);
-                request.onerror = () => reject(request.error);
+                // Excluir favorito relacionado
+                favoritosStore.delete(`fav_${id}`);
+                
+                // Excluir comentários relacionados
+                const comentariosIndex = comentariosStore.index('anotacaoId');
+                const comentariosRequest = comentariosIndex.getAll(Number(id));
+                comentariosRequest.onsuccess = () => {
+                    const comentarios = comentariosRequest.result || [];
+                    comentarios.forEach(c => comentariosStore.delete(c.id));
+                };
+                
+                transaction.oncomplete = () => resolve(true);
+                transaction.onerror = () => reject(transaction.error);
                 
             } catch (error) {
                 console.error('Erro ao excluir anotação:', error);
@@ -225,155 +233,4 @@ class Database {
                     anotacoes.sort((a, b) => {
                         const dateA = new Date(a.dataCriacao || 0);
                         const dateB = new Date(b.dataCriacao || 0);
-                        return dateB - dateA;
-                    });
-                    resolve(anotacoes);
-                };
-                
-                request.onerror = () => reject(request.error);
-                
-            } catch (error) {
-                console.error('Erro ao buscar todas anotações:', error);
-                reject(error);
-            }
-        });
-    }
-    
-    // Configurações
-    async setConfig(chave, valor) {
-        await this.ensureDB();
-        
-        return new Promise((resolve, reject) => {
-            try {
-                const transaction = this.db.transaction(['configuracoes'], 'readwrite');
-                const store = transaction.objectStore('configuracoes');
-                
-                const request = store.put({ chave, valor });
-                
-                request.onsuccess = () => resolve(true);
-                request.onerror = () => reject(request.error);
-                
-            } catch (error) {
-                console.error('Erro ao salvar configuração:', error);
-                reject(error);
-            }
-        });
-    }
-    
-    async getConfig(chave) {
-        await this.ensureDB();
-        
-        return new Promise((resolve, reject) => {
-            try {
-                const transaction = this.db.transaction(['configuracoes'], 'readonly');
-                const store = transaction.objectStore('configuracoes');
-                
-                const request = store.get(chave);
-                
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-                
-            } catch (error) {
-                console.error('Erro ao buscar configuração:', error);
-                reject(error);
-            }
-        });
-    }
-    
-    // Limpar banco de dados (útil para debug)
-    async limparBanco() {
-        await this.ensureDB();
-        
-        return new Promise((resolve, reject) => {
-            try {
-                const transaction = this.db.transaction(['anotacoes', 'configuracoes'], 'readwrite');
-                const anotacoesStore = transaction.objectStore('anotacoes');
-                const configStore = transaction.objectStore('configuracoes');
-                
-                anotacoesStore.clear();
-                configStore.clear();
-                
-                transaction.oncomplete = () => {
-                    console.log('Banco de dados limpo');
-                    resolve(true);
-                };
-                
-                transaction.onerror = () => reject(transaction.error);
-                
-            } catch (error) {
-                console.error('Erro ao limpar banco:', error);
-                reject(error);
-            }
-        });
-    }
-    
-    // Inicializar dados padrão
-    async inicializarDadosPadrao() {
-        try {
-            const config = await this.getConfig('dados_inicializados_v2');
-            
-            if (!config || !config.valor) {
-                console.log('Inicializando dados padrão...');
-                
-                // Limpar dados antigos se necessário
-                const anotacoesExistentes = await this.getTodasAnotacoes();
-                if (anotacoesExistentes.length === 0) {
-                    // Exemplo de anotações padrão
-                    const anotacoesPadrao = [
-                        {
-                            topico: 'cadastro',
-                            subtopico: 'familia',
-                            tipo: 'guia',
-                            titulo: 'Processo de Cadastro de Família',
-                            subtitulo: 'Passo a passo completo',
-                            conteudo: 'O cadastro de famílias é fundamental para a organização dos produtos no sistema Consinco.\n\n**Pré-requisitos:**\n- Ter acesso ao módulo de cadastros\n- Conhecer a estrutura de produtos da empresa\n\n**Passo a passo:**\n1. Acesse o menu Cadastros\n2. Selecione Produtos\n3. Clique em Família\n4. Preencha os campos obrigatórios\n5. Salve o cadastro',
-                            tags: ['importante', 'passo-a-passo'],
-                            autor: 'Sistema',
-                            autorUsername: 'sistema'
-                        },
-                        {
-                            topico: 'cadastro',
-                            subtopico: 'familia',
-                            tipo: 'observacao',
-                            titulo: 'Observação importante',
-                            subtitulo: '',
-                            conteudo: 'Lembre-se de verificar se a família já não existe antes de criar uma nova. Famílias duplicadas podem causar problemas nos relatórios.',
-                            tags: ['atenção'],
-                            autor: 'Sistema',
-                            autorUsername: 'sistema'
-                        },
-                        {
-                            topico: 'recebimento',
-                            subtopico: 'nfe',
-                            tipo: 'guia',
-                            titulo: 'Recebimento de Nota Fiscal',
-                            subtitulo: 'Procedimento padrão',
-                            conteudo: '**Processo de recebimento de NFE:**\n\n1. Acesse o módulo de Recebimento\n2. Selecione a opção NFE\n3. Informe o número da nota fiscal\n4. Confira os dados do fornecedor\n5. Verifique os produtos e quantidades\n6. Confirme o recebimento\n\n==Importante:== Sempre confira se os valores da nota batem com o pedido de compra.',
-                            tags: ['nfe', 'recebimento'],
-                            autor: 'Sistema',
-                            autorUsername: 'sistema'
-                        }
-                    ];
-                    
-                    for (const anotacao of anotacoesPadrao) {
-                        await this.salvarAnotacao(anotacao);
-                    }
-                }
-                
-                await this.setConfig('dados_inicializados_v2', true);
-                console.log('Dados padrão inicializados');
-            }
-        } catch (error) {
-            console.error('Erro ao inicializar dados padrão:', error);
-        }
-    }
-}
-
-// Instância global do banco de dados
-const db = new Database();
-
-// Função para limpar e recriar o banco (execute no console se necessário)
-window.limparBanco = async () => {
-    await db.limparBanco();
-    console.log('Banco limpo. Recarregue a página.');
-};
+                        return
