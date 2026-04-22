@@ -2,7 +2,10 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Guia Consinco - Sistema de Anotações</title>
     
     <!-- Configuração para GitHub Pages -->
@@ -10,7 +13,7 @@
         const BASE_PATH = '/Guia-Consinco';
     </script>
     
-    <!-- CSS Principal (importa todos os módulos) -->
+    <!-- CSS Principal -->
     <link rel="stylesheet" href="assets/css/style.css">
     
     <!-- Font Awesome -->
@@ -28,6 +31,9 @@
         <div class="main-content">
             <!-- Header -->
             <div id="header-container"></div>
+            
+            <!-- Online Users (para colaboração) -->
+            <div id="online-users" class="online-users-container"></div>
             
             <!-- Content Area -->
             <div class="content-wrapper" id="content-wrapper">
@@ -66,6 +72,32 @@
         </div>
     </div>
     
+    <!-- Modal para Histórico de Versões -->
+    <div id="versoes-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📜 Histórico de Versões</h2>
+                <span class="modal-close" onclick="document.getElementById('versoes-modal').style.display='none'">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="versoes-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Logs de Auditoria -->
+    <div id="audit-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>📋 Registro de Atividades</h2>
+                <span class="modal-close" onclick="document.getElementById('audit-modal').style.display='none'">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="audit-container"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- ============================================ -->
     <!-- SCRIPTS - Ordem de carregamento é importante -->
     <!-- ============================================ -->
@@ -75,6 +107,14 @@
     <script src="assets/js/modules/database.js"></script>
     <script src="assets/js/modules/ui.js"></script>
     <script src="assets/js/modules/editor.js"></script>
+    
+    <!-- Novos Módulos Avançados -->
+    <script src="assets/js/modules/encryption.js"></script>
+    <script src="assets/js/modules/audit.js"></script>
+    <script src="assets/js/modules/websocket.js"></script>
+    <script src="assets/js/modules/virtualScroll.js"></script>
+    <script src="assets/js/modules/dragDrop.js"></script>
+    <script src="assets/js/modules/mobileLayout.js"></script>
     
     <!-- Módulos de Funcionalidades -->
     <script src="assets/js/modules/search.js"></script>
