@@ -10,7 +10,10 @@
         const BASE_PATH = '/Guia-Consinco';
     </script>
     
+    <!-- CSS Principal (importa todos os módulos) -->
     <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- Biblioteca para PDF -->
@@ -55,7 +58,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="comentarios-modal-title">Comentários</h2>
-                <span class="modal-close" onclick="if(window.ui) ui.closeComentariosModal()">&times;</span>
+                <span class="modal-close" onclick="if(window.app && window.app.commentsModule) window.app.commentsModule.closeModal()">&times;</span>
             </div>
             <div class="modal-body">
                 <div id="comentarios-container"></div>
@@ -63,11 +66,24 @@
         </div>
     </div>
     
-    <!-- Scripts na ordem correta -->
+    <!-- ============================================ -->
+    <!-- SCRIPTS - Ordem de carregamento é importante -->
+    <!-- ============================================ -->
+    
+    <!-- Core -->
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/modules/database.js"></script>
     <script src="assets/js/modules/ui.js"></script>
     <script src="assets/js/modules/editor.js"></script>
+    
+    <!-- Módulos de Funcionalidades -->
+    <script src="assets/js/modules/search.js"></script>
+    <script src="assets/js/modules/export.js"></script>
+    <script src="assets/js/modules/favorites.js"></script>
+    <script src="assets/js/modules/comments.js"></script>
+    <script src="assets/js/modules/dashboard.js"></script>
+    
+    <!-- Aplicação Principal -->
     <script src="assets/js/app.js"></script>
 </body>
 </html>
