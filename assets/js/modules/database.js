@@ -2,7 +2,7 @@
 class Database {
     constructor() {
         this.dbName = 'GuiaConsincoDB';
-        this.dbVersion = 3; // Versão incrementada para incluir favoritos e comentários
+        this.dbVersion = 3;
         this.db = null;
         this.initPromise = null;
     }
@@ -84,7 +84,7 @@ class Database {
         return this.db;
     }
     
-    // Operações com Anotações
+    // ==================== ANOTAÇÕES ====================
     async salvarAnotacao(anotacao) {
         await this.ensureDB();
         
@@ -247,7 +247,7 @@ class Database {
         });
     }
     
-    // Configurações
+    // ==================== CONFIGURAÇÕES ====================
     async setConfig(chave, valor) {
         await this.ensureDB();
         
@@ -288,7 +288,7 @@ class Database {
         });
     }
     
-    // Favoritos
+    // ==================== FAVORITOS ====================
     async adicionarFavorito(anotacaoId) {
         await this.ensureDB();
         
@@ -376,26 +376,32 @@ class Database {
         });
     }
     
-    // Comentários
+    // ==================== COMENTÁRIOS ====================
     async adicionarComentario(comentario) {
         await this.ensureDB();
         
         return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['comentarios'], 'readwrite');
-            const store = transaction.objectStore('comentarios');
-            
-            const dados = {
-                anotacaoId: Number(comentario.anotacaoId),
-                autor: comentario.autor || 'Anônimo',
-                autorUsername: comentario.autorUsername || '',
-                conteudo: comentario.conteudo || '',
-                dataCriacao: new Date().toISOString(),
-                aprovado: comentario.aprovado || false
-            };
-            
-            const request = store.add(dados);
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
+            try {
+                const transaction = this.db.transaction(['comentarios'], 'readwrite');
+                const store = transaction.objectStore('comentarios');
+                
+                const dados = {
+                    anotacaoId: Number(comentario.anotacaoId),
+                    autor: comentario.autor || 'Anônimo',
+                    autorUsername: comentario.autorUsername || '',
+                    conteudo: comentario.conteudo || '',
+                    dataCriacao: new Date().toISOString(),
+                    aprovado: comentario.aprovado === true
+                };
+                
+                const request = store.add(dados);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+                
+            } catch (error) {
+                console.error('Erro ao adicionar comentário:', error);
+                reject(error);
+            }
         });
     }
     
@@ -403,19 +409,25 @@ class Database {
         await this.ensureDB();
         
         return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['comentarios'], 'readonly');
-            const store = transaction.objectStore('comentarios');
-            const index = store.index('anotacaoId');
-            
-            const request = index.getAll(Number(anotacaoId));
-            
-            request.onsuccess = () => {
-                let comentarios = request.result || [];
-                comentarios.sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao));
-                resolve(comentarios);
-            };
-            
-            request.onerror = () => reject(request.error);
+            try {
+                const transaction = this.db.transaction(['comentarios'], 'readonly');
+                const store = transaction.objectStore('comentarios');
+                const index = store.index('anotacaoId');
+                
+                const request = index.getAll(Number(anotacaoId));
+                
+                request.onsuccess = () => {
+                    let comentarios = request.result || [];
+                    comentarios.sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao));
+                    resolve(comentarios);
+                };
+                
+                request.onerror = () => reject(request.error);
+                
+            } catch (error) {
+                console.error('Erro ao buscar comentários:', error);
+                reject(error);
+            }
         });
     }
     
@@ -423,22 +435,28 @@ class Database {
         await this.ensureDB();
         
         return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['comentarios'], 'readwrite');
-            const store = transaction.objectStore('comentarios');
-            
-            const getRequest = store.get(Number(id));
-            getRequest.onsuccess = () => {
-                const comentario = getRequest.result;
-                if (comentario) {
-                    comentario.aprovado = true;
-                    const putRequest = store.put(comentario);
-                    putRequest.onsuccess = () => resolve(true);
-                    putRequest.onerror = () => reject(putRequest.error);
-                } else {
-                    reject(new Error('Comentário não encontrado'));
-                }
-            };
-            getRequest.onerror = () => reject(getRequest.error);
+            try {
+                const transaction = this.db.transaction(['comentarios'], 'readwrite');
+                const store = transaction.objectStore('comentarios');
+                
+                const getRequest = store.get(Number(id));
+                getRequest.onsuccess = () => {
+                    const comentario = getRequest.result;
+                    if (comentario) {
+                        comentario.aprovado = true;
+                        const putRequest = store.put(comentario);
+                        putRequest.onsuccess = () => resolve(true);
+                        putRequest.onerror = () => reject(putRequest.error);
+                    } else {
+                        reject(new Error('Comentário não encontrado'));
+                    }
+                };
+                getRequest.onerror = () => reject(getRequest.error);
+                
+            } catch (error) {
+                console.error('Erro ao aprovar comentário:', error);
+                reject(error);
+            }
         });
     }
     
@@ -446,12 +464,18 @@ class Database {
         await this.ensureDB();
         
         return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['comentarios'], 'readwrite');
-            const store = transaction.objectStore('comentarios');
-            
-            const request = store.delete(Number(id));
-            request.onsuccess = () => resolve(true);
-            request.onerror = () => reject(request.error);
+            try {
+                const transaction = this.db.transaction(['comentarios'], 'readwrite');
+                const store = transaction.objectStore('comentarios');
+                
+                const request = store.delete(Number(id));
+                request.onsuccess = () => resolve(true);
+                request.onerror = () => reject(request.error);
+                
+            } catch (error) {
+                console.error('Erro ao excluir comentário:', error);
+                reject(error);
+            }
         });
     }
     
@@ -459,23 +483,31 @@ class Database {
         await this.ensureDB();
         
         return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['comentarios'], 'readonly');
-            const store = transaction.objectStore('comentarios');
-            const index = store.index('aprovado');
-            
-            const request = index.getAll(false);
-            
-            request.onsuccess = () => {
-                const comentarios = request.result || [];
-                comentarios.sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao));
-                resolve(comentarios);
-            };
-            
-            request.onerror = () => reject(request.error);
+            try {
+                const transaction = this.db.transaction(['comentarios'], 'readonly');
+                const store = transaction.objectStore('comentarios');
+                
+                // Buscar todos os comentários e filtrar
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    const comentarios = request.result || [];
+                    // Filtrar apenas os não aprovados (aprovado === false)
+                    const pendentes = comentarios.filter(c => c.aprovado === false);
+                    pendentes.sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao));
+                    resolve(pendentes);
+                };
+                
+                request.onerror = () => reject(request.error);
+                
+            } catch (error) {
+                console.error('Erro ao buscar comentários pendentes:', error);
+                reject(error);
+            }
         });
     }
     
-    // Limpar banco de dados
+    // ==================== INICIALIZAÇÃO ====================
     async limparBanco() {
         await this.ensureDB();
         
@@ -497,7 +529,6 @@ class Database {
         });
     }
     
-    // Inicializar dados padrão
     async inicializarDadosPadrao() {
         try {
             const config = await this.getConfig('dados_inicializados_v3');
@@ -512,34 +543,12 @@ class Database {
                             topico: 'cadastro',
                             subtopico: 'familia',
                             tipo: 'guia',
-                            titulo: 'Processo de Cadastro de Família',
-                            subtitulo: 'Passo a passo completo',
-                            conteudo: 'O cadastro de famílias é fundamental para a organização dos produtos no sistema Consinco.\n\n**Pré-requisitos:**\n- Ter acesso ao módulo de cadastros\n- Conhecer a estrutura de produtos da empresa\n\n**Passo a passo:**\n1. Acesse o menu Cadastros\n2. Selecione Produtos\n3. Clique em Família\n4. Preencha os campos obrigatórios\n5. Salve o cadastro',
-                            tags: ['importante', 'passo-a-passo'],
-                            autor: 'Sistema',
-                            autorUsername: 'sistema'
-                        },
-                        {
-                            topico: 'cadastro',
-                            subtopico: 'familia',
-                            tipo: 'observacao',
-                            titulo: 'Observação importante',
-                            subtitulo: '',
-                            conteudo: 'Lembre-se de verificar se a família já não existe antes de criar uma nova. Famílias duplicadas podem causar problemas nos relatórios.',
-                            tags: ['atenção'],
-                            autor: 'Sistema',
-                            autorUsername: 'sistema'
-                        },
-                        {
-                            topico: 'recebimento',
-                            subtopico: 'nfe',
-                            tipo: 'guia',
-                            titulo: 'Recebimento de Nota Fiscal',
-                            subtitulo: 'Procedimento padrão',
-                            conteudo: '**Processo de recebimento de NFE:**\n\n1. Acesse o módulo de Recebimento\n2. Selecione a opção NFE\n3. Informe o número da nota fiscal\n4. Confira os dados do fornecedor\n5. Verifique os produtos e quantidades\n6. Confirme o recebimento\n\n==Importante:== Sempre confira se os valores da nota batem com o pedido de compra.',
-                            tags: ['nfe', 'recebimento'],
-                            autor: 'Sistema',
-                            autorUsername: 'sistema'
+                            titulo: 'CADASTRO DE FAMILIA - MERCEARIA',
+                            subtitulo: 'TELA - GERAL',
+                            conteudo: '**Campo Família:**\n\nSempre Consulta se a família a ser cadastrada não possui cadastro.\nSeguir o padrão estabelecido: PRODUTO + MARCA + (LINHA) +COR/SABOR/AROMA + (ATRIBUTO) + GRAMATURA\nPara Cadastro de Vinho é sempre Priorizar o RÓTULO\n\n**Campo Marca**\nInserir a Marca de acordo com o Cadastrado da família\nPara Cadastro de Vinho é VINICOLA VAI NA MARCA\n\n**Flags**\n- É Pesável - apenas para famílias que sairão em Balança\n- Permite Quantidade Decimais - para famílias que terão como embalagem KG\n- Permite Multiplicação - ativar a todas as familias\n- Bebida Alcoólica - para famílias que tem como composição Álcool',
+                            tags: ['cadastro', 'familia', 'mercearia'],
+                            autor: 'Administrador',
+                            autorUsername: 'admin'
                         }
                     ];
                     
@@ -557,9 +566,10 @@ class Database {
     }
 }
 
-// Instância global do banco de dados
+// Instância global
 const db = new Database();
 
+// Função de debug
 window.limparBanco = async () => {
     await db.limparBanco();
     console.log('Banco limpo. Recarregue a página.');
