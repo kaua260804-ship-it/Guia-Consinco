@@ -4,6 +4,7 @@ class App {
         this.currentTopico = null;
         this.currentSubtopico = null;
         this.topicosExpandidos = new Set(['cadastro']); // Começar com Cadastro expandido
+        this.basePath = typeof BASE_PATH !== 'undefined' ? BASE_PATH : '';
         this.init();
     }
     
@@ -20,6 +21,7 @@ class App {
             this.showWelcomeScreen();
         } catch (error) {
             console.error('Erro na inicialização:', error);
+            this.showError('Erro ao inicializar aplicação');
         }
     }
     
@@ -28,7 +30,10 @@ class App {
             // Carregar sidebar
             const sidebarContainer = document.getElementById('sidebar-container');
             if (sidebarContainer) {
-                const response = await fetch('components/sidebar.html');
+                const url = this.basePath + '/components/sidebar.html';
+                console.log('Carregando sidebar de:', url);
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Falha ao carregar sidebar');
                 sidebarContainer.innerHTML = await response.text();
                 this.renderTopicos();
             }
@@ -36,7 +41,10 @@ class App {
             // Carregar header
             const headerContainer = document.getElementById('header-container');
             if (headerContainer) {
-                const response = await fetch('components/header.html');
+                const url = this.basePath + '/components/header.html';
+                console.log('Carregando header de:', url);
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Falha ao carregar header');
                 headerContainer.innerHTML = await response.text();
                 
                 const user = auth.getCurrentUser();
@@ -47,6 +55,7 @@ class App {
             }
         } catch (error) {
             console.error('Erro ao carregar componentes:', error);
+            throw error;
         }
     }
     
@@ -235,7 +244,7 @@ class App {
         try {
             const anotacoes = await db.getAnotacoes(topico, subtopico);
             const topicoInfo = this.getTopicoInfo(topico);
-            const subtopicoInfo = topicoInfo.subtopicos.find(s => s.id === subtopico);
+            const subtopicoInfo = topicoInfo.subtopicos.find(s => s.id === subtopico) || { nome: subtopico };
             
             this.updateBreadcrumb(topicoInfo.nome, subtopicoInfo.nome);
             
@@ -400,6 +409,12 @@ class App {
                         <p>Resolução de problemas e inconsistências comuns</p>
                     </div>
                 </div>
+                <br><br>
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <p style="margin: 5px 0;"><strong>🔐 Credenciais de acesso:</strong></p>
+                    <p style="margin: 5px 0;">Visualizador: <code>user</code> / <code>123456</code></p>
+                    <p style="margin: 5px 0;">Administrador: <code>admin</code> / <code>admin123</code></p>
+                </div>
             </div>
         `;
         
@@ -420,6 +435,19 @@ class App {
         }
     }
     
+    showError(message) {
+        const wrapper = document.getElementById('content-wrapper');
+        if (wrapper) {
+            wrapper.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Erro</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+    }
+    
     novaAnotacao() {
         if (!auth.isAdmin()) {
             ui.showNotification('Apenas administradores podem criar conteúdo', 'warning');
@@ -427,7 +455,6 @@ class App {
         }
         
         console.log('Abrindo editor para novo conteúdo');
-        console.log('Tópico:', this.currentTopico, 'Subtópico:', this.currentSubtopico);
         
         if (typeof editor !== 'undefined') {
             editor.abrirEditor(this.currentTopico, this.currentSubtopico);
@@ -438,7 +465,7 @@ class App {
     }
     
     async editarAnotacao(id) {
-        console.log('editando anotação ID:', id);
+        console.log('Editando anotação ID:', id);
         
         if (!auth.isAdmin()) {
             ui.showNotification('Apenas administradores podem editar conteúdo', 'warning');
@@ -447,15 +474,11 @@ class App {
         
         try {
             const idNumerico = Number(id);
-            console.log('Buscando anotação com ID:', idNumerico);
-            
             const anotacao = await db.getAnotacao(idNumerico);
-            console.log('Anotação encontrada:', anotacao);
             
             if (anotacao && typeof editor !== 'undefined') {
                 editor.abrirEditor(anotacao.topico, anotacao.subtopico, anotacao);
             } else {
-                console.error('Anotação não encontrada ou editor indisponível');
                 ui.showNotification('Erro ao carregar conteúdo para edição', 'error');
             }
         } catch (error) {
@@ -477,11 +500,7 @@ class App {
         if (confirmado) {
             try {
                 const idNumerico = Number(id);
-                console.log('Excluindo anotação com ID:', idNumerico);
-                
                 await db.excluirAnotacao(idNumerico);
-                console.log('Anotação excluída com sucesso');
-                
                 await this.carregarAnotacoes(this.currentTopico, this.currentSubtopico);
                 ui.showNotification('Conteúdo excluído com sucesso!', 'success');
             } catch (error) {
@@ -495,7 +514,6 @@ class App {
         const user = auth.getCurrentUser();
         const isAdmin = auth.isAdmin();
         
-        // Atualizar informações do usuário
         const userDisplay = document.getElementById('user-display');
         if (userDisplay && user) {
             userDisplay.textContent = `${user.name} ${isAdmin ? '(Admin)' : '(Visualizador)'}`;
@@ -508,5 +526,5 @@ let app;
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM carregado, inicializando App...');
     app = new App();
-    window.app = app; // Expor para debug
+    window.app = app;
 });
