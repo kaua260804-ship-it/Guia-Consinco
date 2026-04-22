@@ -1,0 +1,129 @@
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    background: linear-gradient(135deg, var(--primary-color), #1a252f);
+    color: white;
+    height: 100vh;
+    overflow-y: auto;
+    animation: slideIn var(--animation-speed) ease-out;
+}
+
+.sidebar-header {
+    padding: 25px 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-header h2 {
+    font-size: 1.4em;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.sidebar-header i {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: var(--secondary-color);
+}
+
+.user-info {
+    font-size: 0.9em;
+    opacity: 0.9;
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.sidebar-nav {
+    padding: 20px 0;
+}
+
+.nav-section {
+    margin-bottom: 10px;
+}
+
+.nav-item {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--animation-speed);
+    animation: slideIn var(--animation-speed) ease-out;
+}
+
+.nav-item i {
+    margin-right: 10px;
+    width: 20px;
+}
+
+.nav-item:hover {
+    background-color: rgba(255,255,255,0.1);
+    padding-left: 25px;
+}
+
+.nav-item.active {
+    background: var(--secondary-color);
+    box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+}
+
+/* Tópico recolhível */
+.topico-header {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all var(--animation-speed);
+}
+
+.topico-header:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.topico-header i {
+    transition: transform var(--animation-speed);
+}
+
+.topico-header.collapsed i {
+    transform: rotate(-90deg);
+}
+
+.subtopicos-container {
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height var(--animation-speed) ease-in-out;
+    background: rgba(0,0,0,0.1);
+}
+
+.subtopicos-container.collapsed {
+    max-height: 0;
+}
+
+.subtopico-item {
+    padding: 10px 20px 10px 50px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all var(--animation-speed);
+    font-size: 0.95em;
+    animation: fadeIn var(--animation-speed);
+}
+
+.subtopico-item:hover {
+    background-color: rgba(255,255,255,0.1);
+    padding-left: 55px;
+}
+
+.subtopico-item.active {
+    background: rgba(52, 152, 219, 0.3);
+    border-left: 3px solid var(--secondary-color);
+}
+
+.subtopico-item i {
+    margin-right: 10px;
+    font-size: 0.9em;
+    width: 16px;
+}
