@@ -1,0 +1,96 @@
+/* Online Users */
+.online-users-container {
+    padding: 8px 30px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.85em;
+}
+
+.online-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.online-dot {
+    width: 8px;
+    height: 8px;
+    background: #27ae60;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.online-avatars {
+    display: flex;
+    gap: 5px;
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+/* Versions */
+.versions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.version-item {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #3498db;
+}
+
+.version-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+/* Audit Logs */
+.audit-logs {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.log-icon {
+    font-size: 1.2em;
+    width: 24px;
+    text-align: center;
+}
+
+.log-content {
+    flex: 1;
+}
+
+.log-time {
+    font-size: 0.8em;
+    color: #999;
+    white-space: nowrap;
+}
