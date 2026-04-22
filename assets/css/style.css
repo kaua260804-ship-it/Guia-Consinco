@@ -1,7 +1,9 @@
 /* Guia Consinco - Estilos Principais */
-/* Importa todos os módulos */
 
+/* Base */
 @import 'variables.css';
+
+/* Módulos */
 @import 'modules/animations.css';
 @import 'modules/reset.css';
 @import 'modules/sidebar.css';
@@ -18,3 +20,8 @@
 @import 'modules/notifications.css';
 @import 'modules/scrollbar.css';
 @import 'modules/responsive.css';
+
+/* Funcionalidades extras */
+@import 'modules/text-formatting.css';
+@import 'modules/audit.css';
+@import 'modules/collaboration.css';
