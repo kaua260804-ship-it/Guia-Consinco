@@ -6,7 +6,6 @@ class App {
         this.topicosExpandidos = new Set(['cadastro']);
         this.basePath = typeof BASE_PATH !== 'undefined' ? BASE_PATH : '';
         
-        // Inicializar módulos
         this.searchModule = null;
         this.exportModule = null;
         this.favoritesModule = null;
@@ -23,7 +22,6 @@ class App {
             await db.inicializarDadosPadrao();
             await this.loadComponents();
             
-            // Inicializar módulos
             if (typeof SearchModule !== 'undefined') this.searchModule = new SearchModule(this);
             if (typeof ExportModule !== 'undefined') this.exportModule = new ExportModule(this);
             if (typeof FavoritesModule !== 'undefined') this.favoritesModule = new FavoritesModule(this);
@@ -38,7 +36,6 @@ class App {
             
             this.updateUI();
             
-            // Mostrar dashboard
             if (this.dashboardModule) {
                 this.dashboardModule.show();
             } else {
@@ -300,14 +297,12 @@ class App {
         try {
             let anotacoes = await db.getAnotacoes(topico, subtopico);
             
-            // Descriptografar se necessário
-            if (typeof encryption !== 'undefined' && encryption.isEnabled()) {
+            if (typeof encryption !== 'undefined' && encryption.isEnabled && encryption.isEnabled()) {
                 for (let i = 0; i < anotacoes.length; i++) {
                     anotacoes[i] = await encryption.decryptAnotacao(anotacoes[i]);
                 }
             }
             
-            // Verificar favoritos
             for (let anotacao of anotacoes) {
                 anotacao.isFavorito = await db.isFavorito(anotacao.id);
             }
@@ -318,7 +313,6 @@ class App {
             this.updateBreadcrumb(topicoInfo.nome, subtopicoInfo.nome);
             document.getElementById('page-title').textContent = subtopicoInfo.nome;
             
-            // Registrar visualização
             if (typeof audit !== 'undefined') {
                 audit.log('VISUALIZAR', topico, subtopico, `${anotacoes.length} itens`);
             }
@@ -367,18 +361,19 @@ class App {
             const isFavorito = anotacao.isFavorito || false;
             
             let titulo = this.escapeHtml(anotacao.titulo || 'Sem título');
-            let conteudo = anotacao.conteudo || '';
+            let subtitulo = anotacao.subtitulo ? this.escapeHtml(anotacao.subtitulo) : '';
+            
+            let conteudoFormatado = '';
+            if (typeof editor !== 'undefined' && editor.formatarConteudo) {
+                conteudoFormatado = editor.formatarConteudo(anotacao.conteudo || '');
+            } else {
+                conteudoFormatado = this.formatarConteudoBasico(anotacao.conteudo || '');
+            }
             
             if (highlightTerm) {
                 const regex = new RegExp(`(${highlightTerm})`, 'gi');
                 titulo = titulo.replace(regex, '<span class="search-results-highlight">$1</span>');
-                conteudo = conteudo.replace(regex, '<span class="search-results-highlight">$1</span>');
             }
-            
-            conteudo = conteudo
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/\n/g, '<br>');
             
             return `
                 <div class="anotacao-bloco ${isGuia ? 'guia-bloco' : 'obs-bloco'}">
@@ -412,8 +407,8 @@ class App {
                             ` : ''}
                         </div>
                     </div>
-                    ${anotacao.subtitulo ? `<div class="anotacao-subtitulo">${this.escapeHtml(anotacao.subtitulo)}</div>` : ''}
-                    <div class="anotacao-conteudo">${conteudo}</div>
+                    ${subtitulo ? `<div class="anotacao-subtitulo">${subtitulo}</div>` : ''}
+                    <div class="anotacao-conteudo">${conteudoFormatado}</div>
                     ${anotacao.tags?.length ? `
                         <div class="anotacao-tags">
                             ${anotacao.tags.map(tag => `<span class="tag"><i class="fas fa-tag"></i> ${this.escapeHtml(tag)}</span>`).join('')}
@@ -421,11 +416,33 @@ class App {
                     ` : ''}
                     <div class="anotacao-footer">
                         <span><i class="fas fa-user"></i> ${this.escapeHtml(anotacao.autor || 'Sistema')}</span>
-                        <span><i class="fas fa-calendar"></i> ${ui.formatarData(anotacao.dataCriacao)}</span>
+                        <span><i class="fas fa-calendar"></i> ${this.formatarData(anotacao.dataCriacao)}</span>
                     </div>
                 </div>
             `;
         }).join('');
+    }
+    
+    formatarConteudoBasico(texto) {
+        if (!texto) return '';
+        let html = texto;
+        html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        html = html.replace(/==([^=]+)==/g, '<mark>$1</mark>');
+        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        html = html.replace(/__([^_]+)__/g, '<u>$1</u>');
+        html = html.replace(/\n/g, '<br>');
+        return html;
+    }
+    
+    formatarData(dataISO) {
+        if (!dataISO) return '';
+        try {
+            return new Date(dataISO).toLocaleDateString('pt-BR');
+        } catch {
+            return '';
+        }
     }
     
     escapeHtml(text) {
@@ -485,7 +502,7 @@ class App {
         
         try {
             let anotacao = await db.getAnotacao(Number(id));
-            if (typeof encryption !== 'undefined' && encryption.isEnabled()) {
+            if (typeof encryption !== 'undefined' && encryption.isEnabled && encryption.isEnabled()) {
                 anotacao = await encryption.decryptAnotacao(anotacao);
             }
             if (anotacao) {
@@ -529,7 +546,7 @@ class App {
         }
         
         let dados = anotacao;
-        if (typeof encryption !== 'undefined' && encryption.isEnabled()) {
+        if (typeof encryption !== 'undefined' && encryption.isEnabled && encryption.isEnabled()) {
             dados = await encryption.encryptAnotacao(anotacao);
         }
         
@@ -558,13 +575,22 @@ class App {
                             <em>${log.topico}/${log.subtopico}</em>
                             ${log.detalhes ? `<br><small>${log.detalhes}</small>` : ''}
                         </div>
-                        <span class="log-time">${ui.formatarData(log.timestamp)}</span>
+                        <span class="log-time">${this.formatarDataHora(log.timestamp)}</span>
                     </div>
                 `).join('')}
             </div>
         `;
         
         modal.style.display = 'block';
+    }
+    
+    formatarDataHora(dataISO) {
+        if (!dataISO) return '';
+        try {
+            return new Date(dataISO).toLocaleString('pt-BR');
+        } catch {
+            return '';
+        }
     }
     
     getLogIcon(acao) {
@@ -588,7 +614,7 @@ class App {
                         <div class="version-item">
                             <div class="version-header">
                                 <strong>Versão ${versions.length - i}</strong>
-                                <span>${ui.formatarData(v.data)}</span>
+                                <span>${this.formatarDataHora(v.data)}</span>
                             </div>
                             <p>Autor: ${v.autor}</p>
                             <button class="btn-sm btn-primary" onclick="app.restoreVersion(${anotacaoId}, ${v.id})">
